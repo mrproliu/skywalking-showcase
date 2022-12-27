@@ -24,7 +24,7 @@ WORKDIR /workspace
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN apt update && apt install -y g++ && pip install -r requirements.txt
 
 COPY src .
 
