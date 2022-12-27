@@ -29,6 +29,7 @@ import org.apache.skywalking.showcase.services.song.repo.SongsRepo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Random;
 
 @Slf4j
 @RestController
@@ -48,6 +49,10 @@ public class SongController {
         log.info("Listing all songs");
         List<Song> songs = songsRepo.findAll();
         songMessageSender.sendMsg(songs.size());
+        if (new Random().nextFloat() < 0.3) {
+            log.info("send error");
+            throw new RuntimeException();
+        }
         saveCache(songs);
         return songs;
     }

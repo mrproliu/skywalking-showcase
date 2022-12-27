@@ -17,7 +17,8 @@
 #
 
 # @feature: python-agent;
-FROM apache/skywalking-python:0.7.0-grpc-py3.9
+#FROM apache/skywalking-python:0.7.0-grpc-py3.9
+FROM python:3.7.16-slim
 
 WORKDIR /workspace
 

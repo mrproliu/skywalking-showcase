@@ -18,6 +18,18 @@ import os
 
 import requests
 
+from py_zipkin.util import generate_random_64bit_string
+from py_zipkin.zipkin import create_http_headers_for_new_span
+from py_zipkin.zipkin import ZipkinAttrs
+from py_zipkin.zipkin import zipkin_span
+
+def http_transport(encoded_span):
+    print("send requests")
+    requests.post(
+        'http://oap:9411/api/v2/spans',
+        data=encoded_span,
+    )
+
 if __name__ == '__main__':
     from flask import Flask, jsonify
 
@@ -31,9 +43,14 @@ if __name__ == '__main__':
 
     @app.route('/rcmd', methods=['GET'])
     def application():
-        r = requests.get('http://songs/songs')
-        recommendations = r.json()
-        return jsonify(recommendations)
+        with zipkin_span(
+            service_name='songs',
+            span_name='/songs',
+            transport_handler=http_transport,
+            port=80):
+            r = requests.get('http://songs/songs')
+            recommendations = r.json()
+            return jsonify(recommendations)
 
 
     PORT = os.getenv('PORT', 80)
