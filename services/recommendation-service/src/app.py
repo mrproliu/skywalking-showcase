@@ -18,18 +18,33 @@ import os
 
 import requests
 
-from py_zipkin.util import generate_random_64bit_string
-from py_zipkin.zipkin import create_http_headers_for_new_span
-from py_zipkin.zipkin import ZipkinAttrs
-from py_zipkin.zipkin import zipkin_span
-from flask_zipkin import Zipkin
+import requests
+from py_zipkin.zipkin import zipkin_span, create_http_headers_for_new_span, ZipkinAttrs, Kind, zipkin_client_span
+from py_zipkin.request_helpers import create_http_headers
+from py_zipkin.encoding import Encoding
+
+def default_handler(encoded_span):
+    body = encoded_span
+
+    # decoded = _V1ThriftDecoder.decode_spans(encoded_span)
+    app.logger.info("body %s", body)
+
+    # return requests.post(
+    #     "http://zipkin:9411/api/v1/spans",
+    #     data=body,
+    #     headers={'Content-Type': 'application/x-thrift'},
+    # )
+
+    return requests.post(
+        "http://oap:9411/api/v2/spans",
+        data=body,
+        headers={'Content-Type': 'application/json'},
+    )
 
 if __name__ == '__main__':
     from flask import Flask, jsonify
 
     app = Flask(__name__)
-    zipkin = Zipkin(app, sample_rate=100)
-    app.config['ZIPKIN_DSN'] = "http://oap:9411/api/v2/spans"
 
     @app.route('/health', methods=['GET'])
     def health():
@@ -38,12 +53,19 @@ if __name__ == '__main__':
 
     @app.route('/rcmd', methods=['GET'])
     def application():
-        headers = {}
-        headers.update(zipkin.create_http_headers_for_new_span())
-        print(headers)
-        r = requests.get('http://songs/songs', headers=headers)
-        recommendations = r.json()
-        return jsonify(recommendations)
+        with zipkin_span(
+                service_name='songs',
+                span_name='/songs',
+                transport_handler=default_handler,
+                port=5000,
+                sample_rate=100,
+                encoding=Encoding.V2_JSON
+            ):
+            headers = create_http_headers()
+            print(headers)
+            r = requests.get('http://songs/songs', headers=headers)
+            recommendations = r.json()
+            return jsonify(recommendations)
 
 
     PORT = os.getenv('PORT', 80)
