@@ -22,19 +22,14 @@ from py_zipkin.util import generate_random_64bit_string
 from py_zipkin.zipkin import create_http_headers_for_new_span
 from py_zipkin.zipkin import ZipkinAttrs
 from py_zipkin.zipkin import zipkin_span
-
-def http_transport(encoded_span):
-    print("send requests")
-    requests.post(
-        'http://oap:9411/api/v2/spans',
-        data=encoded_span,
-    )
+from flask_zipkin import Zipkin
 
 if __name__ == '__main__':
     from flask import Flask, jsonify
 
     app = Flask(__name__)
-
+    zipkin = Zipkin(app, sample_rate=100)
+    app.config['ZIPKIN_DSN'] = "http://oap:9411/api/v2/spans"
 
     @app.route('/health', methods=['GET'])
     def health():
@@ -43,15 +38,13 @@ if __name__ == '__main__':
 
     @app.route('/rcmd', methods=['GET'])
     def application():
-        with zipkin_span(
-            service_name='songs',
-            span_name='/songs',
-            transport_handler=http_transport,
-            port=80):
-            r = requests.get('http://songs/songs')
-            recommendations = r.json()
-            return jsonify(recommendations)
+        headers = {}
+        headers.update(zipkin.create_http_headers_for_new_span())
+        print(headers)
+        r = requests.get('http://songs/songs', headers=headers)
+        recommendations = r.json()
+        return jsonify(recommendations)
 
 
-    PORT = os.getenv('PORT', 80)
+    PORT = os.getenv('PORT', 81)
     app.run(host='0.0.0.0', port=PORT)
