@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
         r = requests.get('http://songs/songs', headers=headers)
         recommendations = r.json()
+        print(r.headers)
         return jsonify(recommendations)
 
 
