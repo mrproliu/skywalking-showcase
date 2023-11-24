@@ -46,7 +46,7 @@ skywalking:
       K8S_SERVICE_NAME_RULE: "mesh-svr::${service.metadata.name}"
       SW_CONFIGURATION: k8s-configmap
       SW_ENVOY_METRIC_ALS_TCP_ANALYSIS: "mx-mesh"
-      SW_ENABLE_UPDATE_UI_TEMPLATE: "false"
+      SW_ENABLE_UPDATE_UI_TEMPLATE: "true"
       SW_SLOW_DB_THRESHOLD: default:0,mongodb:100
       SW_ENABLE_ON_DEMAND_POD_LOG: "true"
       SW_METER_ANALYZER_ACTIVE_FILES: datasource,threadpool,satellite,network-profiling,go-runtime,python-runtime,spring-micrometer,continuous-profiling
