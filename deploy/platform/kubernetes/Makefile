@@ -42,6 +42,8 @@ HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.banyandb.storage.persistentVolu
 HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.oap.image.repository=$(SW_OAP_IMAGE) --set skywalking.oap.image.tag=$(SW_OAP_IMAGE_TAG)
 HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.ui.image.repository=$(SW_UI_IMAGE) --set skywalking.ui.image.tag=$(SW_UI_IMAGE_TAG)
 HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.ui.env.SW_ZIPKIN_ADDRESS=http://$(RELEASE)-oap.$(NAMESPACE).svc:9412
+HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.oap.env.SW_ENABLE_UPDATE_UI_TEMPLATE=true
+HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.oap.startupProbe.periodSeconds=10 --set skywalking.oap.startupProbe.failureThreshold=60
 HELM_OPTIONS := $(HELM_OPTIONS) --set skywalking.satellite.image.repository=$(SW_SATELLITE_IMAGE) --set skywalking.satellite.image.tag=$(SW_SATELLITE_IMAGE_TAG)
 HELM_OPTIONS := $(HELM_OPTIONS) --set swck.image.repository=$(SWCK_OPERATOR_IMAGE) --set swck.image.tag=$(SWCK_OPERATOR_IMAGE_TAG)
 HELM_OPTIONS := $(HELM_OPTIONS) --set sampleServices.hub=$(HUB) --set sampleServices.tag=$(TAG) --set sampleServices.namespace=$(SAMPLE_SERVICES_NAMESPACE)
